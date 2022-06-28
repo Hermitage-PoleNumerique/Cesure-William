@@ -36,65 +36,86 @@
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
-#include <LowPower.h>
 
 void do_send(osjob_t* j);
+
+//////////////////Sensors configuration////////////////
 
 // Include sensors
 #include "DHT11_Temperature.h"
 #include "DHT11_Humidity.h"
 
+// CHANGE HERE THE NUMBER OF SENSORS, SOME CAN BE NOT CONNECTED
+const int number_of_sensors = 2;
+
+///////////////////////////////////////////////////////
+
+
+//////////////////Board configuration////////////////
+// Pin mapping for the board model provided
+// Need to be change if the mapping of the lora module change
+const lmic_pinmap lmic_pins = {
+    .nss = 10,
+    .rxtx = LMIC_UNUSED_PIN,
+    .rst = 6,
+    .dio = {7, 8, LMIC_UNUSED_PIN},
+};
+/////////////////////////////////////////////////////
+
+//////////////////Sleep mode configuration////////////////
+// Sleep mode management with Low-power librarie
 #define LOW_POWER
 #define SHOW_LOW_POWER_CYCLE                  
 
-// INTERRUPTIONS ON PIN 2 AND/OR 3
-#define IRQ_PIN2
-//#define IRQ_PIN3
-//If defined, the sensors won't be evaluate before sending, in case of interruption
-//#define IRQ_OVERRIDE
-//
-// For normal use, we require that you edit the sketch to replace FILLMEIN
-// with values assigned by the TTN console. However, for regression tests,
-// we want to be able to compile these scripts. The regression tests define
-// COMPILE_REGRESSION_TEST, and in that case we define FILLMEIN to a non-
-// working but innocuous value.
-//
-#ifdef COMPILE_REGRESSION_TEST
-# define FILLMEIN 0
-#else
-# warning "You must replace the values marked FILLMEIN with real values from the TTN control panel!"
-# define FILLMEIN (#dont edit this, edit the lines that use FILLMEIN)
+#if defined LOW_POWER
+#include <LowPower.h>
 #endif
 
+//////////////////////////////////////////////////////////
+
+//////////////////INTERRUPTION CONFIGURATION/////////////////
+// INTERRUPTIONS ON PIN 2 AND/OR 3 : Allow to send a payload instantly if a signal (HIGH, LOW, RISING, FALLING) is sense on Pin 2 or 3
+#define IRQ_PIN2
+//#define IRQ_PIN3
+//If IRQ_OVERRIDE defined, the other sensors won't be evaluate before sending, in case of interruption
+//#define IRQ_OVERRIDE
+
+// Citation from Arduino doc :
+// The interruption mode defines when the interrupt should be triggered. Four constants are predefined as valid values:
+//    -LOW to trigger the interrupt whenever the pin is low,
+//    -CHANGE to trigger the interrupt whenever the pin changes value
+//    -RISING to trigger when the pin goes from low to high,
+//    -FALLING for when the pin goes from high to low.
+#define IRQMODE_PIN2 RISING
+#define IRQMODE_PIN3 RISING
+
+/////////////////////////////////////////////////////////////
+
+//////////////////Node configuration////////////////
 // This EUI must be in little-endian format, so least-significant-byte
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
 // 0x70.
-//static const u1_t PROGMEM APPEUI[8]= { FILLMEIN };
 static const u1_t PROGMEM APPEUI[8]= { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // This should also be in little endian format, see above.
-//static const u1_t PROGMEM DEVEUI[8]= { 0xe9, 0xbd, 0x69, 0x62, 0xb1, 0xcd, 0xae, 0xd2 };
 //f7 ec c3 88 30 db 06 f4
-//0xf7, 0xec, 0xc3, 0x88, 0x30, 0xdb, 0x06, 0xf4
-
 static const u1_t PROGMEM DEVEUI[8]= {0xf7, 0xec, 0xc3, 0x88, 0x30, 0xdb, 0x06, 0xf4};
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from the TTN console can be copied as-is.
-//static const u1_t PROGMEM APPKEY[16] = { 0x69, 0x3c, 0xb0, 0x56, 0x19, 0x9a, 0x23, 0xfd, 0x6c, 0x94, 0x85, 0xb5, 0x80, 0xd5, 0xb3, 0x3f };
-//d1 d2 3a 45 03 7c 20 58 f5 9b 2c 5f 27 ef f8 4d
 static const u1_t PROGMEM APPKEY[16] = {0xd1, 0xd2, 0x3a, 0x45, 0x03, 0x7c, 0x20, 0x58, 0xf5, 0x9b, 0x2c, 0x5f, 0x27, 0xef, 0xf8, 0x4d};
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
-
-static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
 const unsigned TX_INTERVAL = 20;
+////////////////////////////////////////////////////
+
+static osjob_t sendjob;
 
 // INTERRUPTION PINS
 #if defined IRQ_PIN2 || defined IRQ_PIN3
@@ -135,6 +156,8 @@ const char irq_pin3_nomenclature = 'J';
 #endif
 
 #ifdef LOW_POWER
+
+bool goDeepSleep = false;
 
 void lowPower_withInts() {
     #if defined IRQ_PIN2 && defined IRQ_PIN3
@@ -198,11 +221,6 @@ void lowPower_withInts() {
    }
 }
 #endif
-// SENSORS DEFINITION 
-//////////////////////////////////////////////////////////////////
-// CHANGE HERE THE NUMBER OF SENSORS, SOME CAN BE NOT CONNECTED
-const int number_of_sensors = 2;
-//////////////////////////////////////////////////////////////////
 
 const int payload_length = irq_payload_offset + number_of_sensors*(sizeof(float)+1);
 uint8_t payload[payload_length];
@@ -211,13 +229,6 @@ const uint8_t payload_size = sizeof(payload);
 // array containing sensors pointers
 Sensor* sensor_ptrs[number_of_sensors];
 
-// Pin mapping
-const lmic_pinmap lmic_pins = {
-    .nss = 10,
-    .rxtx = LMIC_UNUSED_PIN,
-    .rst = 6,
-    .dio = {7, 8, LMIC_UNUSED_PIN},
-};
 
 void printHex2(unsigned v) {
     v &= 0xff;
@@ -229,7 +240,6 @@ void printHex2(unsigned v) {
 ostime_t t_queued, t_complete;
 ostime_t t_nextTx;
 
-bool goDeepSleep = false;
 
 void onEvent (ev_t ev) {
     t_complete = os_getTime();
@@ -406,10 +416,10 @@ int i_offset = 0;
 
 #endif
 
-          // main loop for sensors, actually, you don't have to edit anything here
-          // just add a predefined sensor if needed or provide a new sensor class instance for a handle a new physical sensor
+          // Main loop for sensors, actually, you don't have to edit anything here
           for (int i=0, j=irq_payload_offset; i<number_of_sensors; i++, j += 1 + sizeof(float)) {
 
+              //For each sensor, a char for defining the variable and a float for the value is added to the payload 
               if (sensor_ptrs[i]->get_is_connected() || sensor_ptrs[i]->has_fake_data()) {
                   payload[j] = (uint8_t)sensor_ptrs[i]->get_nomenclature();
                   float payloadData = (float) sensor_ptrs[i]->get_value();
@@ -456,27 +466,21 @@ int i_offset = 0;
 #endif
 
 #if defined IRQ_PIN2
-      attachInterrupt(digitalPinToInterrupt(2), interrupt_pin2, RISING);
+      attachInterrupt(digitalPinToInterrupt(2), interrupt_pin2, IRQMODE_PIN2);
 #endif
 
 #if defined IRQ_PIN3
-      attachInterrupt(digitalPinToInterrupt(3), interrupt_pin3, RISING);
+      attachInterrupt(digitalPinToInterrupt(3), interrupt_pin3, IRQMODE_PIN3);
 #endif
 }
 
 
 void setup() {
+
     delay(5000);
     while (! Serial);
     Serial.begin(9600);
     Serial.println(F("Starting"));
-
-    #ifdef VCC_ENABLE
-    // For Pinoccio Scout boards
-    pinMode(VCC_ENABLE, OUTPUT);
-    digitalWrite(VCC_ENABLE, HIGH);
-    delay(1000);
-    #endif
 
     // LMIC init
     os_init();
@@ -498,6 +502,7 @@ void setup() {
     // Sensor(nomenclature, is_analog, is_connected, is_low_power, pin_read, pin_power, pin_trigger=-1)   
     sensor_ptrs[0] = new DHT11_Temperature('T', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 5,4);
     sensor_ptrs[1] = new DHT11_Humidity('H', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 5,4);
+
 
     ////////////////////////////////////////////////////////////////// 
     
@@ -528,7 +533,10 @@ void setup() {
 }
 
 void loop() {
+
+#if defined LOW_POWER
     if (goDeepSleep){
+        //Sleep mode doesn't start if there is a job running in less than 8s
         if(!os_queryTimeCriticalJobs(ms2osticks(8158))) {
             Serial.println(F("Entering sleep mode..."));
             lowPower_withInts();
@@ -536,5 +544,7 @@ void loop() {
         }
         goDeepSleep = false;
     }
+#endif
+
     os_runloop_once();
 }

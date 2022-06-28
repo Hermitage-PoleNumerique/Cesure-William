@@ -42,12 +42,10 @@ void do_send(osjob_t* j);
 //////////////////Sensors configuration////////////////
 
 // Include sensors
-#include "DHT11_Temperature.h"
-#include "DHT11_Humidity.h"
-#include "VOLT.h"
+#include "HCSR04.h"
 
 // CHANGE HERE THE NUMBER OF SENSORS, SOME CAN BE NOT CONNECTED
-const int number_of_sensors = 3;
+const int number_of_sensors = 1;
 
 ///////////////////////////////////////////////////////
 
@@ -101,14 +99,15 @@ static const u1_t PROGMEM APPEUI[8]= { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // This should also be in little endian format, see above.
-//f7 ec c3 88 30 db 06 f4
-static const u1_t PROGMEM DEVEUI[8]= {0xf7, 0xec, 0xc3, 0x88, 0x30, 0xdb, 0x06, 0xf4};
+//d2 ae cd b1 62 69 bd e9
+static const u1_t PROGMEM DEVEUI[8]= { 0xd2, 0xae, 0xcd, 0xb1, 0x62, 0x69, 0xbd, 0xe9 };
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from the TTN console can be copied as-is.
-static const u1_t PROGMEM APPKEY[16] = {0xd1, 0xd2, 0x3a, 0x45, 0x03, 0x7c, 0x20, 0x58, 0xf5, 0x9b, 0x2c, 0x5f, 0x27, 0xef, 0xf8, 0x4d};
+//06 90 3c 0b 00 56 01 90 9a 02 30 fd 06 c0 94 08
+static const u1_t PROGMEM APPKEY[16] = { 0x06, 0x90, 0x3c, 0x0b ,0x00, 0x56, 0x01, 0x90, 0x9a, 0x02, 0x30, 0xfd, 0x06, 0xc0, 0x94, 0x08 };
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 // Schedule TX every this many seconds (might become longer due to duty
@@ -501,9 +500,7 @@ void setup() {
     //////////////////////////////////////////////////////////////////
     // ADD YOUR SENSORS HERE   
     // Sensor(nomenclature, is_analog, is_connected, is_low_power, pin_read, pin_power, pin_trigger=-1)   
-    sensor_ptrs[0] = new DHT11_Temperature('T', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 5,4);
-    sensor_ptrs[1] = new DHT11_Humidity('H', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 5,4);
-    sensor_ptrs[2] = new VOLT('V', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, A0);
+    sensor_ptrs[0] = new HCSR04('D', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 3, 5, 4);
 
 
     ////////////////////////////////////////////////////////////////// 

@@ -36,21 +36,10 @@
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
+#include <LowPower.h>
+#include <EEPROM.h>
 
 void do_send(osjob_t* j);
-
-//////////////////Sensors configuration////////////////
-
-// Include sensors
-#include "DHT11_Temperature.h"
-#include "DHT11_Humidity.h"
-#include "VOLT.h"
-
-// CHANGE HERE THE NUMBER OF SENSORS, SOME CAN BE NOT CONNECTED
-const int number_of_sensors = 3;
-
-///////////////////////////////////////////////////////
-
 
 //////////////////Board configuration////////////////
 // Pin mapping for the board model provided
@@ -74,114 +63,66 @@ const lmic_pinmap lmic_pins = {
 
 //////////////////////////////////////////////////////////
 
-//////////////////INTERRUPTION CONFIGURATION/////////////////
-// INTERRUPTIONS ON PIN 2 AND/OR 3 : Allow to send a payload instantly if a signal (HIGH, LOW, RISING, FALLING) is sense on Pin 2 or 3
-#define IRQ_PIN2
-//#define IRQ_PIN3
-//If IRQ_OVERRIDE defined, the other sensors won't be evaluate before sending, in case of interruption
-//#define IRQ_OVERRIDE
+// For normal use, we require that you edit the sketch to replace FILLMEIN
+// with values assigned by the TTN console. However, for regression tests,
+// we want to be able to compile these scripts. The regression tests define
+// COMPILE_REGRESSION_TEST, and in that case we define FILLMEIN to a non-
+// working but innocuous value.
+//
+#ifdef COMPILE_REGRESSION_TEST
+# define FILLMEIN 0
+#else
+# warning "You must replace the values marked FILLMEIN with real values from the TTN control panel!"
+# define FILLMEIN (#dont edit this, edit the lines that use FILLMEIN)
+#endif
 
-// Citation from Arduino doc :
-// The interruption mode defines when the interrupt should be triggered. Four constants are predefined as valid values:
-//    -LOW to trigger the interrupt whenever the pin is low,
-//    -CHANGE to trigger the interrupt whenever the pin changes value
-//    -RISING to trigger when the pin goes from low to high,
-//    -FALLING for when the pin goes from high to low.
-#define IRQMODE_PIN2 RISING
-#define IRQMODE_PIN3 RISING
-
-/////////////////////////////////////////////////////////////
-
-//////////////////Node configuration////////////////
 // This EUI must be in little-endian format, so least-significant-byte
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
 // 0x70.
+//static const u1_t PROGMEM APPEUI[8]= { FILLMEIN };
 static const u1_t PROGMEM APPEUI[8]= { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // This should also be in little endian format, see above.
-//f7 ec c3 88 30 db 06 f4
-static const u1_t PROGMEM DEVEUI[8]= {0xf7, 0xec, 0xc3, 0x88, 0x30, 0xdb, 0x06, 0xf4};
+//06 e7 06 90 9e e2 7f 7d
+
+static const u1_t PROGMEM DEVEUI[8]= {0x06, 0xe7, 0x06, 0x90, 0x9e, 0xe2, 0x7f, 0x7d};
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from the TTN console can be copied as-is.
-static const u1_t PROGMEM APPKEY[16] = {0xd1, 0xd2, 0x3a, 0x45, 0x03, 0x7c, 0x20, 0x58, 0xf5, 0x9b, 0x2c, 0x5f, 0x27, 0xef, 0xf8, 0x4d};
+// f7 fb 0a d1 ab dc 5e 54 35 f7 a6 cd 34 d1 de e0
+static const u1_t PROGMEM APPKEY[16] = {0xf7, 0xfb, 0x0a, 0xd1, 0xab, 0xdc, 0x5e, 0x54, 0x35, 0xf7, 0xa6, 0xcd, 0x34, 0xd1, 0xde, 0xe0};
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
-
-// Schedule TX every this many seconds (might become longer due to duty
-// cycle limitations).
-const unsigned TX_INTERVAL = 20;
-////////////////////////////////////////////////////
 
 static osjob_t sendjob;
 
-// INTERRUPTION PINS
-#if defined IRQ_PIN2 || defined IRQ_PIN3
+// INTERRUPTION PIN
 volatile uint8_t flags_pinIrq = 0b00000000;
-#endif
 
-#if defined IRQ_PIN2
 #define FLAG_IRQ2 (1 << 0)
 void interrupt_pin2(){
     flags_pinIrq |= FLAG_IRQ2;
     os_clearCallback(&sendjob);
     os_setCallback(&sendjob, do_send);
 }
-#endif
 
-#if defined IRQ_PIN3
-#define FLAG_IRQ3 (1 << 1)
-void interrupt_pin3(){
-    flags_pinIrq |= FLAG_IRQ3;
-    os_clearCallback(&sendjob);
-    os_setCallback(&sendjob, do_send);
-}
-#endif
-
-#if defined IRQ_PIN2 && defined IRQ_PIN3
-const int irq_payload_offset = 2;
-#elif defined IRQ_PIN2 || defined IRQ_PIN3
-const int irq_payload_offset = 1;
-#else
-const int irq_payload_offset = 0;
-#endif
-
-#ifdef IRQ_PIN2
-const char irq_pin2_nomenclature = 'I';
-#endif
-#ifdef IRQ_PIN3
-const char irq_pin3_nomenclature = 'J';
-#endif
+uint8_t i_burst = -1;
+uint8_t i_id;
 
 #ifdef LOW_POWER
 
-bool goDeepSleep = false;
-
 void lowPower_withInts() {
-    #if defined IRQ_PIN2 && defined IRQ_PIN3
-    if((flags_pinIrq & (FLAG_IRQ2||FLAG_IRQ3)) > 0) return;
-    #elif defined IRQ_PIN2
     if((flags_pinIrq & FLAG_IRQ2) > 0) return;
-    #elif defined IRQ_PIN3
-    if((flags_pinIrq & FLAG_IRQ3) > 0) return;
-    #endif
 
   Serial.flush();
   delay(5);
 
   while (!os_queryTimeCriticalJobs(ms2osticks(1158))) {
-      #if defined IRQ_PIN2 && defined IRQ_PIN3
-      if((flags_pinIrq & (FLAG_IRQ2||FLAG_IRQ3)) > 0) break;
-      #elif defined IRQ_PIN2
       if((flags_pinIrq & FLAG_IRQ2) > 0) break;
-      #elif defined IRQ_PIN3
-      if((flags_pinIrq & FLAG_IRQ3) > 0) break;
-      #endif
 
-  
       // ATmega2560, ATmega328P, ATmega168, ATmega32U4
       // each wake-up introduces an overhead of about 158ms
       if (!os_queryTimeCriticalJobs(ms2osticks(8158))) {
@@ -223,13 +164,20 @@ void lowPower_withInts() {
 }
 #endif
 
-const int payload_length = irq_payload_offset + number_of_sensors*(sizeof(float)+1);
+#define LED_PIN 5
+void led_blink(int n){
+    for(int i = 0; i < n ; i++){
+        digitalWrite(LED_PIN, HIGH);
+        delay(250);
+        digitalWrite(LED_PIN, LOW);
+        delay(250);
+    }
+
+}
+
+const int payload_length = 2;
 uint8_t payload[payload_length];
 const uint8_t payload_size = sizeof(payload);
-
-// array containing sensors pointers
-Sensor* sensor_ptrs[number_of_sensors];
-
 
 void printHex2(unsigned v) {
     v &= 0xff;
@@ -241,6 +189,7 @@ void printHex2(unsigned v) {
 ostime_t t_queued, t_complete;
 ostime_t t_nextTx;
 
+bool goDeepSleep = false;
 
 void onEvent (ev_t ev) {
     t_complete = os_getTime();
@@ -265,6 +214,9 @@ void onEvent (ev_t ev) {
             Serial.println(F("EV_JOINING"));
             break;
         case EV_JOINED:
+
+            led_blink(2);
+
             Serial.println(F("EV_JOINED"));
             {
               u4_t netid = 0;
@@ -313,6 +265,9 @@ void onEvent (ev_t ev) {
             break;
             break;
         case EV_TXCOMPLETE:
+            
+            led_blink(1);
+
             Serial.println(F("EV_TXCOMPLETE (includes waiting for RX windows)"));
 
             Serial.print(F("Diff (sec): "));
@@ -327,9 +282,9 @@ void onEvent (ev_t ev) {
               Serial.println(F(" bytes of payload"));
             }
             // Schedule next transmission
-            t_nextTx = os_getTime()+sec2osticks(TX_INTERVAL);
-            os_setTimedCallback(&sendjob, t_nextTx, do_send);
-            goDeepSleep = true;
+            if(i_burst<9) os_setCallback(&sendjob, do_send);
+            else goDeepSleep = true;
+
             break;
 
         case EV_LOST_TSYNC:
@@ -378,66 +333,18 @@ void onEvent (ev_t ev) {
 
 void do_send(osjob_t* j){
 
-int i_offset = 0;
-#if defined IRQ_PIN2
-    detachInterrupt(digitalPinToInterrupt(2));
     if((flags_pinIrq & FLAG_IRQ2) > 0){
         Serial.print(F("Int on pin 2\n"));
-        payload[0] = irq_pin2_nomenclature ;
+        flags_pinIrq = 0b00000000;
+        EEPROM.put(0, ++i_id);
+        i_burst = 0;
     }
-    else payload[0] = 0, i_offset++;
-#endif
-#if defined IRQ_PIN3
-      detachInterrupt(digitalPinToInterrupt(3));
-      if((flags_pinIrq & FLAG_IRQ3) > 0){
-        Serial.print(F("Int on pin 3\n"));
-#if defined IRQ_PIN2
-        payload[1] = irq_pin3_nomenclature;
-      }
-      else payload[1] = 0, i_offset++;
-#else
-        payload[0] = irq_pin3_nomenclature;
-      }
-      else payload[0] = 0, i_offset++;
-#endif
-#endif
+    else i_burst++;
+
+    payload[0] = i_id;
+    payload[1] = i_burst;
         
-#if defined IRQ_OVERRIDE && (defined IRQ_PIN2 || defined IRQ_PIN3)
-
-#if defined IRQ_PIN2 && defined IRQ_PIN3
-      if((flags_pinIrq & (FLAG_IRQ2|FLAG_IRQ3)) > 0) {
-#elif defined IRQ_PIN2
-      if((flags_pinIrq & FLAG_IRQ2) > 0) {
-#elif defined IRQ_PIN3
-      if((flags_pinIrq & FLAG_IRQ3) > 0) {
-#endif
-      for (int i=irq_payload_offset; i<payload_length ; i++) payload[i] = 0;
-      }
-      else{
-
-#endif
-
-          // Main loop for sensors, actually, you don't have to edit anything here
-          for (int i=0, j=irq_payload_offset; i<number_of_sensors; i++, j += 1 + sizeof(float)) {
-
-              //For each sensor, a char for defining the variable and a float for the value is added to the payload 
-              if (sensor_ptrs[i]->get_is_connected() || sensor_ptrs[i]->has_fake_data()) {
-                  payload[j] = (uint8_t)sensor_ptrs[i]->get_nomenclature();
-                  float payloadData = (float) sensor_ptrs[i]->get_value();
-                  memcpy(payload+j+1, &payloadData, sizeof(float));
-
-              }
-          }
-
-#if defined IRQ_OVERRIDE && (defined IRQ_PIN2 || defined IRQ_PIN3)        
-      }
-#endif
-    
-    Serial.print(F("Sending : "));
-    Serial.print((char*)(payload+i_offset));
-    Serial.println("");
-
-    Serial.print(F("Payload hex : "));
+    Serial.print(F("Sending (hex) : "));
     for (int i=0; i<payload_length;i++) {
         printHex2(payload[i]);
         Serial.print(F(" "));
@@ -461,23 +368,10 @@ int i_offset = 0;
     }
     // Next TX is scheduled after TX_COMPLETE event.
 
-    //Reattach the interruptions
-#if defined IRQ_PIN2 || defined IRQ_PIN3
-      flags_pinIrq = 0b00000000;
-#endif
-
-#if defined IRQ_PIN2
-      attachInterrupt(digitalPinToInterrupt(2), interrupt_pin2, IRQMODE_PIN2);
-#endif
-
-#if defined IRQ_PIN3
-      attachInterrupt(digitalPinToInterrupt(3), interrupt_pin3, IRQMODE_PIN3);
-#endif
 }
 
 
 void setup() {
-
     delay(5000);
     while (! Serial);
     Serial.begin(9600);
@@ -492,21 +386,15 @@ void setup() {
     // we take 10% error to better handle downlink messages    
     LMIC_setClockError(MAX_CLOCK_ERROR * 10 / 100);
     
-    #ifdef LOW_POWER
-      bool low_power_status = IS_LOWPOWER;
-    #else
-      bool low_power_status = IS_NOT_LOWPOWER;
-    #endif
-    
-    //////////////////////////////////////////////////////////////////
-    // ADD YOUR SENSORS HERE   
-    // Sensor(nomenclature, is_analog, is_connected, is_low_power, pin_read, pin_power, pin_trigger=-1)   
-    sensor_ptrs[0] = new DHT11_Temperature('T', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 5,4);
-    sensor_ptrs[1] = new DHT11_Humidity('H', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, 5,4);
-    sensor_ptrs[2] = new VOLT('V', IS_NOT_ANALOG, IS_CONNECTED, low_power_status, A0);
+    //Counters
+    i_burst = 254;
+    EEPROM.get(0, i_id); 
 
+    //Interruption pin
+    attachInterrupt(digitalPinToInterrupt(2), interrupt_pin2, RISING);
 
-    ////////////////////////////////////////////////////////////////// 
+    //Blink-led
+    pinMode(LED_PIN, OUTPUT);
     
     #if defined(CFG_eu868)
     // Set up the channels used by the Things Network, which corresponds
@@ -535,10 +423,7 @@ void setup() {
 }
 
 void loop() {
-
-#if defined LOW_POWER
     if (goDeepSleep){
-        //Sleep mode doesn't start if there is a job running in less than 8s
         if(!os_queryTimeCriticalJobs(ms2osticks(8158))) {
             Serial.println(F("Entering sleep mode..."));
             lowPower_withInts();
@@ -546,7 +431,5 @@ void loop() {
         }
         goDeepSleep = false;
     }
-#endif
-
     os_runloop_once();
 }
