@@ -1,3 +1,8 @@
+/*
+* Copyright (C) William Michalski, Hermitage-PoleNumerique, France
+*
+*/
+
 // Decode decodes an array of bytes into an object.
 //  - fPort contains the LoRaWAN fPort number
 //  - bytes is an array of bytes, e.g. [225, 230, 255, 0]

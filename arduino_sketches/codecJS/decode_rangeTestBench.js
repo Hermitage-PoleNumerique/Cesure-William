@@ -1,3 +1,8 @@
+/*
+* Copyright (C) William Michalski, Hermitage-PoleNumerique, France
+*
+*/
+
 function Decode(fPort, bytes) {
 
     var decoded = {};
