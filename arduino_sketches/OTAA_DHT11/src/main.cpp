@@ -1,17 +1,26 @@
 /*******************************************************************************
+ *
+ * Arduino program for a LoRaWan node, running with arduino-lmic, with
+ * low power features and generic sensor reading (here DHT11).
+ *
  * Copyright (c) 2015 Thomas Telkamp and Matthijs Kooijman
  * Copyright (c) 2018 Terry Moore, MCCI
+ * Copyright (c) 2016-2020 Congduc Pham, University of Pau, France
+ * Copyright (c) 2022 William Michalski, Hermitage-PoleNumerique, France
  *
- * Permission is hereby granted, free of charge, to anyone
- * obtaining a copy of this document and accompanying files,
- * to do whatever they want with them without any restriction,
- * including, but not limited to, copying, modification and redistribution.
- * NO WARRANTY OF ANY KIND IS PROVIDED.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * This example sends a valid LoRaWAN packet with payload "Hello,
- * world!", using frequency and encryption settings matching those of
- * the The Things Network. It's pre-configured for the Adafruit
- * Feather M0 LoRa.
+ * You should have received a copy of the GNU General Public License
+ * along with the program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *******************************************************************************
  *
  * This uses OTAA (Over-the-air activation), where where a DevEUI and
  * application key is configured, which are used in an over-the-air
@@ -23,9 +32,9 @@
  * violated by this sketch when left running for longer)!
 
  * To use this sketch, first register your application and device with
- * the things network, to set or generate an AppEUI, DevEUI and AppKey.
- * Multiple devices can use the same AppEUI, but each device has its own
- * DevEUI and AppKey.
+ * the things network, or a local chirpstack server, to set or generate
+ * an AppEUI, DevEUI and AppKey. Multiple devices can use the same AppEUI,
+ * but each device has its own DevEUI and AppKey.
  *
  * Do not forget to define the radio type correctly in
  * arduino-lmic/project_config/lmic_project_config.h or from your BOARDS.txt.
@@ -45,7 +54,7 @@ void do_send(osjob_t* j);
 #include "DHT11_Temperature.h"
 #include "DHT11_Humidity.h"
 
-// CHANGE HERE THE NUMBER OF SENSORS, SOME CAN BE NOT CONNECTED
+// Change here the number of sensors, some can be not connected
 const int number_of_sensors = 2;
 
 ///////////////////////////////////////////////////////
@@ -73,7 +82,7 @@ const lmic_pinmap lmic_pins = {
 
 //////////////////////////////////////////////////////////
 
-//////////////////INTERRUPTION CONFIGURATION/////////////////
+//////////////////Interruption Configuration/////////////////
 // INTERRUPTIONS ON PIN 2 AND/OR 3 : Allow to send a payload instantly if a signal (HIGH, LOW, RISING, FALLING) is sense on Pin 2 or 3
 #define IRQ_PIN2
 //#define IRQ_PIN3

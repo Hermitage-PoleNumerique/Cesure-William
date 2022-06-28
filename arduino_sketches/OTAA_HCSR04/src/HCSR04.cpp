@@ -1,9 +1,6 @@
 /*
-* Copyright (C) 2016 Nicolas Bertuol, University of Pau, France
+* Copyright (C) William Michalski, Hermitage-PoleNumerique, France
 *
-* nicolas.bertuol@etud.univ-pau.fr
-*
-* modified by Congduc Pham, University of Pau, France
 */
 
 #include "HCSR04.h"

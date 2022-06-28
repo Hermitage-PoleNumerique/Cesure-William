@@ -4,6 +4,7 @@
 * nicolas.bertuol@etud.univ-pau.fr
 * 
 * Modified by C. Pham, University of Pau, France
+* Modified by William Michalski, Hermitage-PoleNumerique, France
 */
 
 #ifndef SENSOR_H
@@ -40,7 +41,7 @@
 
 class Sensor {
   public:  
-    Sensor(char nomenclature, bool is_analog, bool is_connected, bool is_low_power, uint8_t pin_read, uint8_t pin_power=-1, int pin_trigger=-1);
+    Sensor(char nomenclature, bool is_analog, bool is_connected, bool is_low_power, uint8_t pin_read, uint8_t pin_power, int pin_trigger=-1);
     
     // getters
     //////////

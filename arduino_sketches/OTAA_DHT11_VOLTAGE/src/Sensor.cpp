@@ -4,6 +4,7 @@
 * nicolas.bertuol@etud.univ-pau.fr
 *
 * Modified by C. Pham, University of Pau, France
+* Modified by William Michalski, Hermitage-PoleNumerique, France
 */
 
 #include "Sensor.h"
