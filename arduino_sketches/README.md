@@ -1,6 +1,6 @@
+# Arduino_sketches
 
-
-## Choix du microcontrôleur : Arduino Pro Mini 3.3V (AtMega328P)
+Ce dossier regroupe les programmes développés pour faire fonctionner des noeuds LoRaWAN à partir d'Arduino Pro Mini 3.3V.
 
 Il a été décidé assez rapidement de rester sur des microcontrôleurs Arduino, pour respecter des contraintes de prix (microcontrôleur très générique donc peu chère) et de simplicité de fabrication (tout fablab ou bidouilleur possède un Arduino).
 
@@ -10,6 +10,34 @@ Lors du choix de la carte électronique, il faut également faire attention au t
 Concernant la consommation énergétique, bien que la différence soit faible entre un Arduino pro-mini 3.3V et un 5V, il est sûrement moins couteux en batterie d'avoir une alimentation continue 3.3V que 5V. Pour plus d'informations sur la différence entre un Arduino pro-mini 3.3V et 5V, voir : https://riton-duino.blogspot.com/2020/03/arduino-pro-mini-5v-ou-33v.html.
 
 Le choix d'un Arduino pour faire du LoRaWan n'est pas sans conséquence : pour respecter le protocole LoRaWan, beaucoup de code (venant du framework, arduino-LMIC pour nous) est nécessaire et les limites de mémoire de la puce AtMega328P sont vite atteintes. Les fonctions réalisées par un noeud Lora se doivent donc d'être simple, le code est donc assez minimaliste, ce qui rend malheureusement la prise en main plus complexe ([LMIC-node](https://github.com/lnlp/LMIC-node), est une surcouche de arduino-LMIC permettant une prise en main facilité, mais malheureusement trop couteuse en mémoire pour un Arduino).
+
+## Pin mapping
+
+Le pin mapping de la PCB développée est le suivant :
+
+```
+       Arduino      Radio module
+         GND----------GND   (ground in)
+         3V3----------3.3V  (3.3V in)
+  SS pin D10----------NSS   (CS chip select in)
+ SCK pin D13----------SCK   (SPI clock in)
+MOSI pin D11----------MOSI  (SPI Data in)
+MISO pin D12----------MISO  (SPI Data out)
+          D7----------DI00
+          D8----------DI01
+          D9----------DI02
+```
+
+Si vous souhaitez utiliser une autre carte, ou brancher directement un module LoRa sur un arduino, le pin mapping doit être modifié dans main.cpp :
+
+```c++
+const lmic_pinmap lmic_pins = {
+    .nss = 10,
+    .rxtx = LMIC_UNUSED_PIN,
+    .rst = 6,
+    .dio = {7, 8, LMIC_UNUSED_PIN},
+};
+```
 
 ## Choix du framework LoRaWan
 
@@ -132,8 +160,6 @@ double VOLT::get_value()
 }
 
 ```
-
-## Pin mapping [schéma]
 
 
 ## Système d’interruption

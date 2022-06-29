@@ -87,7 +87,7 @@ Le noeud Arduino utilisait le programme OTAA_rangeTestBench : lorsqu'il y avait 
 
 Le but du test est donc d'envoyer une salve de paquet depuis une certaine position, et de voir ensuite le nombre de paquets correctement reçu parmi les 10. Il est également possible de s'intéresser au RSSI (indice de puissance d'un paquet) ou au SNR (ratio signal sur bruit), mais c'est plus difficile d'extraire de l'information.
 
-Ci-dessous, les résultats d'une série de tests pour deux PCBs différentes. Les résultats sont également accessibles dans le [tableur]. Les données ont été extraites d'une base de données InfluxDB, intégrée à ChirpStack.
+Les résultats d'une série de tests pour deux PCBs différentes sont visualisables sur ces [cartes](./cartesMesures_testsPorteeHer.pdf). Les résultats sont également accessibles dans les tableurs [mesures_testPorteeHer_2022-06-15.ods](./mesures_testPorteeHer_2022-06-17.ods) et [mesures_testPorteeHer_2022-06-17.ods](./mesures_testPorteeHer_2022-06-17.ods). Les données ont été extraites d'une base de données InfluxDB, intégrée à ChirpStack.
 
 
 ## License
