@@ -1,10 +1,12 @@
-# LoRaWan x HER
+# Réseau IOT LoRaWan à l'Hermitage, libre et DIY
 
 Ce projet consistait en la création d’un réseau d’objet connecté en LoRaWan, dans le tiers lieu l'Hermitage, à partir de microcontrôleur Arduino Pro Mini. Le but était de trouver une méthode générale, non seulement pour installer un réseau LoRaWAN, mais également de développer une carte électronique (PCB) pour les nœuds LoRaWAN, ainsi que des programmes pour ces cartes. Ce travail se veut donc être une porte d'entrée pour les makers souhaitant s'investir dans le développement de réseaux IOT LoRaWAN libres !
 
 Les plus grosses contributions de ce dossier sont la PCB développée (voir le dossier [board](./board)), ainsi que les programmes Arduino (voir le dossier [arduino_sketches](./arduino_sketches)), permettant de fabriquer son propre nœud LoRaWAN pour ~ 20€ (je n'ai pas trouvé d'autres solutions grand public permettant d'obtenir ce résultat). Quelques conseils sont également disponibles pour les personnes souhaitant construire leur propre réseau LoRaWAN.
 
-Ce dossier n'est actuellement plus maintenu, j'espère qu'il servira de base de travail pour d'autres ! Merci à l’équipe de l’Hermitage et à l’association L’Hermitage Expérimentation pour l’opportunité de travailler sur ce projet au sein du pôle numérique et de son fablab.
+Pour plus d'informations sur les motivations de ce projet, je vous invite à lire le document d'[introduction](./intro.pdf).
+
+J'espère que ce travail servira de porte d'entrée pour d'autres ! Ce dossier n'est pas maintenu de manière active, mais vous pouvez me contacter pour tout type de demandes (correction, ajout, demande de contribution...). Merci à l’équipe de l’Hermitage et à l’association L’Hermitage Expérimentation pour l’opportunité de travailler sur ce projet au sein du pôle numérique et de son fablab.
 
 
 ## Documentations

@@ -52,7 +52,7 @@ Pendant un temps, les programmes de [CongDucPham](https://github.com/CongducPham
 Le framework arduino-LMIC permet de créer des nœuds LoRaWan de classe A. La classe B est implémentée, "mais non testée". La classe C, elle, n’est pas développé.
 Si l’implémentation de nœud en classe C vous intéresse (pour réaliser des actionneurs par exemple), il existe le framework  [Beelan-LoRaWAN](https://github.com/BeelanMX/Beelan-LoRaWAN), que je n’ai pas testé.
 
-##Présentation des programmes
+## Présentation des programmes
 
 Tous ces programmes utilisent l’OTAA, et respecte le protocole LoRaWan pour les appareils de classe A (c’est du "LoRaWan pur", la couche MAC est implémentée). Ils sont basés sur le programme [ttn-otaa-feather-us915](https://github.com/mcci-catena/arduino-lmic/tree/master/examples) de terrillmoore, pour lmic-arduino, et le programme [Arduino_LoRa_Generic_DHT](https://github.com/CongducPham/LowCostLoRaGw/tree/master/Arduino) de CongducPham, pour LowCostLoRaGw. En plus de cette fusion, d’autres ajouts ont été faits, comme la gestion du mode d’économie d’énergie, et la gestion des interruptions.
 
@@ -233,8 +233,6 @@ Le travail de CongducPham, sur les programmes des cartes Arduino, proposait auss
 Cependant, l'utilisation du framework LMIC et d'un Arduino (Atmega328P) font que la quantité de mémoire disponible pour ajouter du code (en plus de celui fournit par LMIC, permettant de respecter le protocole LoRaWan) est très faible. Le code se devait d'être le plus minimaliste possible pour pouvoir être téléversé en entier sur la carte Arduino. L'utilisation de la librairie CayenneLPP ou de la librairie String prenait beaucoup de place, il a donc été décidé de créer des payloads ultra minimaliste pour pouvoir conserver plus de mémoire. Le format des payloads été donc le suivant :
 ```
 0T27.79H56.50
-
-IT27.79H56.50
 ```
 * Le 1er caractère (0 ou I) sert à détecter s'il y a eu une interruption ou non
 * Il n'y a pas de séparateur entre les différents éléments, car les tailles sont fixes : un unique caractère est utilisé pour définir la variable, soit un octet (T pour température, H pour humidité), et la valeur suivante est toujours un float, soit 4 octets. Le paquet *0T27.79H56.50* est donc composé de 1 + 1 + 4 + 1 + 4 = 11 octets, et ce sera toujours le cas quelque-soit la mesure.
