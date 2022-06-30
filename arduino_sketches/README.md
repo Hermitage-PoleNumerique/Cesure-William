@@ -1,15 +1,15 @@
 # Arduino_sketches
 
-Ce dossier regroupe les programmes développés pour faire fonctionner des noeuds LoRaWAN à partir d'Arduino Pro Mini 3.3V.
+Ce dossier regroupe les programmes développés pour faire fonctionner des nœuds LoRaWAN à partir d'Arduino Pro Mini 3.3V.
 
 Il a été décidé assez rapidement de rester sur des microcontrôleurs Arduino, pour respecter des contraintes de prix (microcontrôleur très générique donc peu chère) et de simplicité de fabrication (tout fablab ou bidouilleur possède un Arduino).
 
-L'Arduino pro-mini est le format d'Arduino le plus petit, et consommant le moins d'énergie, c'est donc le plus adapté pour cette application. Un autre format de carte Arduino est tout à fait possible (il s'agit toujours du même microcontrôleur : le AtMega328P), mais au prix d'un plus grand volume et d'une consommation, donc d'une autonomie, plus faible (voir https://riton-duino.blogspot.com/2018/02/arduino-pro-mini-basse-consommation.html pour plus d'information sur la consommation).
+L'Arduino pro-mini est le format d'Arduino le plus petit, et consommant le moins d'énergie, c'est donc le plus adapté pour cette application. Un autre format de carte Arduino est tout à fait possible (il s'agit toujours du même microcontrôleur : l'*AtMega328P*), mais au prix d'un plus grand volume et d'une consommation plus élevée (donc d'une autonomie plus faible) (pour plus d'information sur la consommation d'un Arduino Pro Mini : <http://www.lilygo.cn/prod_view.aspx?TypeId=50044&Id=1317&FId=t3:50044:3>).
 
-Lors du choix de la carte électronique, il faut également faire attention au type de logique : 3.3V ou 5V. Tous les capteurs/actionneurs/périphériques devront fonctionner selon le voltage choisi (pour plus d'informations : https://rootsaid.com/arduino-logic-level/). Ici il a été choisi d'utiliser un Arduino pro mini 3.3V, donc tous les capteurs reliés se devaient de fonctionner en 3.3V.
-Concernant la consommation énergétique, bien que la différence soit faible entre un Arduino pro-mini 3.3V et un 5V, il est sûrement moins couteux en batterie d'avoir une alimentation continue 3.3V que 5V. Pour plus d'informations sur la différence entre un Arduino pro-mini 3.3V et 5V, voir : https://riton-duino.blogspot.com/2020/03/arduino-pro-mini-5v-ou-33v.html.
+Lors du choix de la carte électronique, il faut également faire attention au type de logique : 3.3V ou 5V. Tous les capteurs/actionneurs/périphériques devront fonctionner selon le voltage choisi (pour plus d'informations : <https://rootsaid.com/arduino-logic-level/>). Ici il a été choisi d'utiliser un Arduino pro mini 3.3V, donc tous les capteurs reliés se devaient de fonctionner en 3.3V.
+Concernant la consommation énergétique, bien que la différence soit faible entre un Arduino pro-mini 3.3V et un 5V, il est sûrement moins couteux en batterie d'avoir une alimentation continue 3.3V que 5V. Pour plus d'informations sur la différence entre un Arduino pro-mini 3.3V et 5V, voir ceci : <https://riton-duino.blogspot.com/2020/03/arduino-pro-mini-5v-ou-33v.html>.
 
-Le choix d'un Arduino pour faire du LoRaWan n'est pas sans conséquence : pour respecter le protocole LoRaWan, beaucoup de code (venant du framework, arduino-LMIC pour nous) est nécessaire et les limites de mémoire de la puce AtMega328P sont vite atteintes. Les fonctions réalisées par un noeud Lora se doivent donc d'être simple, le code est donc assez minimaliste, ce qui rend malheureusement la prise en main plus complexe ([LMIC-node](https://github.com/lnlp/LMIC-node), est une surcouche de arduino-LMIC permettant une prise en main facilité, mais malheureusement trop couteuse en mémoire pour un Arduino).
+Le choix d'un Arduino pour faire du LoRaWan n'est pas sans conséquence : pour respecter le protocole LoRaWan, beaucoup de code (venant du framework, *arduino-LMIC* pour nous) est nécessaire et les limites de mémoire de la puce AtMega328P sont vite atteintes. Les fonctions réalisées par un nœud Lora se doivent donc d'être simple, le code est donc assez minimaliste, ce qui rend malheureusement la prise en main plus complexe ([LMIC-node](https://github.com/lnlp/LMIC-node), est une surcouche de arduino-LMIC permettant une prise en main facilité, mais malheureusement trop couteuse en mémoire pour un Arduino).
 
 ## Pin mapping
 
@@ -41,7 +41,7 @@ const lmic_pinmap lmic_pins = {
 
 ## Choix du framework LoRaWan
 
-Pour développer le programme d'un noeud LoRaWan, il existe principalement deux frameworks : [LoraMac-node](https://github.com/Lora-net/LoRaMac-node) et LMIC. MCCI à développé une version de LMIC fonctionnant sur carte Arduino, alors qu'il n'y a pas de version de LoraMac-node fonctionnant sur Arduino. Le choix s'est donc naturellement porté vers [arduino-LMIC](https://github.com/mcci-catena/arduino-lmic).
+Pour développer le programme d'un nœud LoRaWan, il existe principalement deux frameworks : [LoraMac-node](https://github.com/Lora-net/LoRaMac-node) et LMIC. MCCI à développé une version de LMIC fonctionnant sur carte Arduino, alors qu'il n'y a pas de version de LoraMac-node fonctionnant sur Arduino. Le choix s'est donc naturellement porté vers [arduino-LMIC](https://github.com/mcci-catena/arduino-lmic).
 
 Une version légèrement modifiée de arduino-LMIC est utilisée, proposé par [d-a-v](https://github.com/mcci-catena/arduino-lmic/pull/756) (c'est un "hack" ne rajoutant que quelques lignes de code), permettant d'ajouter un mode économie d'énergie, nécessaire pour avoir une autonomie satisfaisante (voir [Autonomie](#autonomie)).
 
@@ -49,10 +49,10 @@ Néanmoins, arduino-LMIC reste un framework lourd pour une carte Arduino. Les li
 
 Pendant un temps, les programmes de [CongDucPham](https://github.com/CongducPham/LowCostLoRaGw/tree/master/Arduino) ont été utilisés (une partie du code développé est d'ailleurs basé sur son travail), car ils permettent une utilisation de LoRaWan en single-channel. Ils sont également intéressants pour comprendre les étapes du protocole LoRaWan. Néanmoins, il était souhaitable de fonctionner en multi-channel, et les programmes de CongDucPham se sont pas 100% compatibles avec la couche MAC de LoRaWan (l'OTAA par exemple, n'est pas implémenté).
 
-Le framework arduino-LMIC permet de créer des noeuds LoRaWan de classe A (voir [spécification de LoRaWan). La classe B est implémentée, "mais non testée". La classe C, elle, n’est pas développé.
+Le framework arduino-LMIC permet de créer des nœuds LoRaWan de classe A. La classe B est implémentée, "mais non testée". La classe C, elle, n’est pas développé.
 Si l’implémentation de nœud en classe C vous intéresse (pour réaliser des actionneurs par exemple), il existe le framework  [Beelan-LoRaWAN](https://github.com/BeelanMX/Beelan-LoRaWAN), que je n’ai pas testé.
 
-##Présentation des programmes présents. Comment les utiliser, les modifier
+##Présentation des programmes
 
 Tous ces programmes utilisent l’OTAA, et respecte le protocole LoRaWan pour les appareils de classe A (c’est du "LoRaWan pur", la couche MAC est implémentée). Ils sont basés sur le programme [ttn-otaa-feather-us915](https://github.com/mcci-catena/arduino-lmic/tree/master/examples) de terrillmoore, pour lmic-arduino, et le programme [Arduino_LoRa_Generic_DHT](https://github.com/CongducPham/LowCostLoRaGw/tree/master/Arduino) de CongducPham, pour LowCostLoRaGw. En plus de cette fusion, d’autres ajouts ont été faits, comme la gestion du mode d’économie d’énergie, et la gestion des interruptions.
 
@@ -75,7 +75,7 @@ Programme permettant de mesurer une distance, à l’aide d’un capteur ultraso
 
 ## Modification des capteurs relevés
 
-Pour modifier la liste des capteurs réalisant une mesure pour le noeud, il faut modifier la liste des capteurs :
+Pour modifier la liste des capteurs réalisant une mesure pour le nœud, il faut modifier la liste des capteurs :
 
 ```
 // Sensor(nomenclature, is_analog, is_connected, is_low_power, pin_read, pin_power, pin_trigger=-1)
@@ -161,11 +161,39 @@ double VOLT::get_value()
 
 ```
 
+Il faut également s'assurer que l'information puisse être décodé par le network-server (voir [Codecs](#codecs)). Pour cela, vous pouvez adapter les programmes disponibles dans [codecJS](./codecJS). S'il n'y a pas de gros changements, il suffit de faire des modifications ici (exemple venant de [decode_DHT11_VOLTAGE.js](./codecJS/decode_DHT11_VOLTAGE.js)):
+
+```js
+var n_irq_pins = 1;
+
+var decoded = {};
+decoded.irq_pin2 = false;
+decoded.irq_pin3 = false;
+
+decoded.humidity = null;
+decoded.temperature = null;
+decoded.voltage = null;
+```
+Et là :
+
+```js
+switch(charCode){
+            case 'T':
+                decoded.temperature = f_val;
+                break;
+            case 'H':
+                decoded.humidity = f_val;
+                break;
+            case 'V':
+                decoded.voltage = f_val;
+                break;
+        }
+```
 
 ## Système d’interruption
 
-Quel est l'intérêt des interruptions ? Une interruption permet de lancer une "routine" (entendre fonction) prioritaire, en cas de déclenchement (voir https://www.arduino.cc/reference/en/language/functions/external-interrupts/attachinterrupt/ pour une explication plus complète sur le principe).
-L'utilisation des interruptions parait pertinente pour les noeuds Lora : dans le cas où un noeud a pour fonction d'attendre un stimuli d'un capteur (et pas de faire un relevé "analogique"), s'il n'y avait pas les interruptions, il faudrait vérifier en permanence le capteur, ce qui serait très énergivore (pas souhaitable pour un capteur autonome sur batterie), ou alors programmer des relevés à certains moments uniquement, au prix d'un manque de réactivité et au risque de manquer l'information. Les interruptions permettent le parfait compromis : l'Arduino peut être en mode LowPower, tout en étant capable d'envoyer un uplink dès qu'il y aura un stimuli sur un pin.
+Quel est l'intérêt des interruptions ? Une interruption permet de lancer une "routine" (entendre fonction) prioritaire, en cas de déclenchement (pour une explication plus complète sur le principe voir cette page : <https://www.arduino.cc/reference/en/language/functions/external-interrupts/attachinterrupt/>).
+L'utilisation des interruptions parait pertinente pour les nœuds Lora : dans le cas où un nœud a pour fonction d'attendre un stimuli d'un capteur (et pas de faire un relevé "analogique"), il faudrait vérifier en permanence le capteur s'il n'y avait pas d'interruption, ce qui serait très énergivore (pas souhaitable pour un capteur autonome sur batterie). Ou alors il faudrait programmer des relevés à certains moments uniquement, au prix d'un manque de réactivité et au risque de manquer l'information. Les interruptions permettent le parfait compromis : l'Arduino peut être en mode "économie d'énergie", tout en étant capable d'envoyer un uplink dès qu'il y aura un stimuli sur un pin (cela peut sembler contre intuitif au fonctionnement d'un programme classique, mais les systèmes d'interruptions existe physiquement dans les microcontrôleurs/processeurs et ont un fonctionnement à part).
 
 Les programmes développés permettent l’utilisation des deux pins d’interruptions de l’Arduino Pro-mini (les pins 2 et 3). Leur utilisation, c’est-à-dire l’envoi d’un paquet lorsqu’il y a une réaction sur un de ses pins, se fait en définissant :
 ```c++
@@ -181,7 +209,7 @@ Il est tout à fait possible de travailler sur l’IDE Arduino. Pour cela, il fa
 * Ajouter la librarie LMIC modifiée *LMIC_LowPower* , dans le dossier des libraries de l’Arduino
 * Installer la librarie LowPower
 * Mettre le contenu du dossier *src* dans la racine du projet (un niveau au-dessus)
-* Renommer le fichier principal *main.cpp* par le nom de dossier du projet (si les programmes se trouvent dans le dossier *NoeudLorawan_lmic_lowpower*, *main.cpp* doit être renommé *NoeudLorawan_lmic_lowpower.ino*)
+* Renommer le fichier principal *main.cpp* par le nom de dossier du projet (si les programmes se trouvent dans le dossier *nœudLorawan_lmic_lowpower*, *main.cpp* doit être renommé *nœudLorawan_lmic_lowpower.ino*)
 
 
 ## Autonomie
@@ -189,11 +217,11 @@ Il est tout à fait possible de travailler sur l’IDE Arduino. Pour cela, il fa
 De nombreuses méthodes existent pour augmenter l'autonomie d'un Arduino (voir [ceci](https://riton-duino.blogspot.com/2018/02/arduino-pro-mini-basse-consommation.html) ou [cela](http://www.gammon.com.au/power)). La plus significative est l'utilisation d'un mode d'économie d'énergie, quand l'Arduino est en attente. Il est fondamental d'implémenter cela pour l'utilisation en IOT, car la majorité du temps, les appareils sont inactifs (un relevé se fera généralement en moins de 10s, et tout les 5min maximum, ce qui fait qu'un appareil n'est finalement actif que 3% du temps). 
 
 Dans ce travail, nous nous sommes concentré sur l’implémentation d'un mode d'économie d'énergie avec le framework arduino-LMIC (c'est une sorte de "hack" du framework). La librarie LowPower est alors utilisée pour gérer la partie économie d'énergie. D'autres méthodes, que ce soit matériel ou logiciel, pourraient être ajoutées pour améliorer l'autonomie. La consommation en mode économie d'énergie, lors de tests, était de l'ordre de 2mA, ce qui semblait suffisamment satisfaisant pour un appareil "lowcost" : pour 2 piles AA Ni-Mh, avec un élévateur de tension externe 3.3V, la batterie pourrait durer au moins 2/3 mois, théoriquement (voir ce [site](http://oregonembedded.com/batterycalc.htm) pour estimer la durée de vie d'une batterie et comprendre le calcul).
-Peu de tests ont pu être réalisés pour s'assurer de l'autonomie réelle. Un test a montré qu'une noeud monté avec un DHT11, 2 piles Ni-Mh de 2800mAh chacunes, et avec un envoie de paquet toutes les 20s, pouvait tenir une dizaine de jours. Avec une utilisation normale (c'est-à-dire avec un envoie de paquet beaucoup moins régulier, donc le module serait en mode économie d'énergie la majorité du temps), on pourrait espérer avoir une autonomie 2 voir 3 fois plus élevée, si ce n'est mieux. Je n'ai pas de doute qu'on puisse obtenir une autonomie de 1 mois avec ce module, et une autonomie de plusieurs mois avec quelques améliorations (meilleurs piles ? Plus d'optimisation en mode économie d'énergie ? Choix d'autres composants électroniques ? Suppression de la LED de l’Arduino pro-mini ?). 
+Peu de tests ont pu être réalisés pour s'assurer de l'autonomie réelle. Un test a montré qu'une nœud monté avec un DHT11, 2 piles Ni-Mh de 2800mAh chacunes, et avec un envoie de paquet toutes les 20s, pouvait tenir une dizaine de jours. Avec une utilisation normale (c'est-à-dire avec un envoie de paquet beaucoup moins régulier, donc le module serait en mode économie d'énergie la majorité du temps), on pourrait espérer avoir une autonomie 2 voir 3 fois plus élevée, si ce n'est mieux. Je n'ai pas de doute qu'on puisse obtenir une autonomie de 1 mois avec ce module, et une autonomie de plusieurs mois avec quelques améliorations (meilleurs piles ? Plus d'optimisation en mode économie d'énergie ? Choix d'autres composants électroniques ? Suppression de la LED de l’Arduino pro-mini ?). 
 
 ## Codecs
 
-Pour transmettre des informations entre les noeuds Arduino et Chirpstack, il est important de s'accorder sur la nomenclature des paquets (on parle uniquement de la partie "donnée" des paquets, le "payload", pas des en-têtes ajoutés par les couches réseaux). Il faut donc définir les algorithmes de codage et décodage des informations. Le but étant d'obtenir, au bout de la chaine, un JSON pour chaque paquet, avec une ligne pour chaque variable (au format "clé : valeur", exemple : {"temperature": 22.5} ).
+Pour transmettre des informations entre les nœuds Arduino et Chirpstack, il est important de s'accorder sur la nomenclature des paquets (on parle uniquement de la partie "donnée" des paquets, le "payload", pas des en-têtes ajoutés par les couches réseaux). Il faut donc définir les algorithmes de codage et décodage des informations. Le but étant d'obtenir, au bout de la chaine, un JSON pour chaque paquet, avec une ligne pour chaque variable (au format "clé : valeur", exemple : {"temperature": 22.5} ).
 
 À noter que les paquets sont également encodés puis décodés en base64, entre la transmission par la gateway sur MQTT et la réception par Chirpstack-Network-Server (important d'avoir cette info lorsque l'on débogue les paquets dans cette couche réseau !).
 

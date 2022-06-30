@@ -1,15 +1,15 @@
 # LoRaWan x HER
 
-Ce projet consistait en la création d’un réseau d’objet connecté en LoRaWan, dans le tiers lieu l'Hermitage, à partir de microcontrôleur Arduino Pro Mini. Le but était de trouver une méthode générale, non seulement pour installer un réseau LoRaWAN, mais également de développer une carte électronique (PCB) pour les noeuds LoRaWAN, ainsi que des programmes pour ces cartes. Ce travail se veut donc être une porte d'entrée pour les makers souhaitant s'investir dans le développement de réseaux IOT LoRaWAN libres !
+Ce projet consistait en la création d’un réseau d’objet connecté en LoRaWan, dans le tiers lieu l'Hermitage, à partir de microcontrôleur Arduino Pro Mini. Le but était de trouver une méthode générale, non seulement pour installer un réseau LoRaWAN, mais également de développer une carte électronique (PCB) pour les nœuds LoRaWAN, ainsi que des programmes pour ces cartes. Ce travail se veut donc être une porte d'entrée pour les makers souhaitant s'investir dans le développement de réseaux IOT LoRaWAN libres !
 
-Les plus grosses contributions de ce dossier sont la PCB développée (voir le dossier [board](./board)), ainsi que les programmes Arduino (voir le dossier [arduino_sketches](./arduino_sketches)), permettant de fabriquer son propre noeud LoRaWAN pour ~ 20€ (je n'ai pas trouvé d'autres solutions grand public permettant d'obtenir ce résultat). Quelques conseils sont également disponibles pour les personnes souhaitant construire leur propre réseau LoRaWAN.
+Les plus grosses contributions de ce dossier sont la PCB développée (voir le dossier [board](./board)), ainsi que les programmes Arduino (voir le dossier [arduino_sketches](./arduino_sketches)), permettant de fabriquer son propre nœud LoRaWAN pour ~ 20€ (je n'ai pas trouvé d'autres solutions grand public permettant d'obtenir ce résultat). Quelques conseils sont également disponibles pour les personnes souhaitant construire leur propre réseau LoRaWAN.
 
 Ce dossier n'est actuellement plus maintenu, j'espère qu'il servira de base de travail pour d'autres ! Merci à l’équipe de l’Hermitage et à l’association L’Hermitage Expérimentation pour l’opportunité de travailler sur ce projet au sein du pôle numérique et de son fablab.
 
 
 ## Documentations
 
-* Pour les personnes souhaitant découvrir LoRa et LoRaWan, il y a le livre [LoRa - LoRaWAN et l'Internet des Objets]([https://www.univ-smb.fr/lorawan/wp-content/uploads/2022/01/Livre-LoRa-LoRaWAN-et-lInternet-des-Objets.pdf]), qui est en français, très pédagogique et accessible gratuitement en PDF.
+* Pour les personnes souhaitant découvrir LoRa et LoRaWan, il y a le livre [LoRa - LoRaWAN et l'Internet des Objets](https://www.univ-smb.fr/lorawan/wp-content/uploads/2022/01/Livre-LoRa-LoRaWAN-et-lInternet-des-Objets.pdf), qui est en français, très pédagogique et accessible gratuitement en PDF.
 
 * On trouve également beaucoup de documentation sur le protocole LoRaWan sur le site de TheThingNetwork : <https://www.thethingsnetwork.org/docs/lorawan/>.
 
@@ -59,7 +59,7 @@ Plusieurs services web communiquent entre eux au sein du réseau, il est nécess
 
 ### Choix du network-server
 
-Il existe principalement deux services possibles pour la partie web de LoRaWan : *Chirpstack* et *The Thing Network*. *Chirpstack* propose des solutions pour héberger ces propres services web, alors que *The Thing Network* est un cloud, permettant d’y connecter ses noeuds LoRa. Votre choix dépend donc de ce que vous souhaitez faire. À l’Hermitage nous souhaitions plutôt avoir un service auto-hébergé, nous nous sommes donc concentré sur *Chirpstack*.
+Il existe principalement deux services possibles pour la partie web de LoRaWan : *Chirpstack* et *The Thing Network*. *Chirpstack* propose des solutions pour héberger ces propres services web, alors que *The Thing Network* est un cloud, permettant d’y connecter ses nœuds LoRa. Votre choix dépend donc de ce que vous souhaitez faire. À l’Hermitage nous souhaitions plutôt avoir un service auto-hébergé, nous nous sommes donc concentré sur *Chirpstack*.
 
 
 ### Utilisation des données par les applications
@@ -74,8 +74,8 @@ Beaucoup de services différents existe en fonction de vos besoins, que ce soit 
 
 ## Portée à l'Hermitage
 
-Quelques tests de portée ont pu être réalisés à l'Hermitage. Il est clair que la présence d'obstacle vient limiter la portée du signal LoRa : lorsque la gateway et le noeud sont séparés par des arbres, on perd plus de paquets (dû au feuillage, en hiver le problème serait bien moindre !). 
-Il faut donc privilégier une visibilité directe entre la passerelle (gateway) et les noeuds (même un chemin de forêt, peut servir de "couloir" au signal et améliorer la portée).
+Quelques tests de portée ont pu être réalisés à l'Hermitage. Il est clair que la présence d'obstacle vient limiter la portée du signal LoRa : lorsque la gateway et le nœud sont séparés par des arbres, on perd plus de paquets (dû au feuillage, en hiver le problème serait bien moindre !). 
+Il faut donc privilégier une visibilité directe entre la passerelle (gateway) et les nœuds (même un chemin de forêt, peut servir de "couloir" au signal et améliorer la portée).
 Actuellement, la passerelle Lora de l'Hermitage se trouve dans un bâtiment en intérieur, et plutôt sur le flan d'une vallée. Avec une antenne placée à l'extérieur, sur le plateau de l'Hermitage, et éventuellement avec une antenne plus adaptée (une antenne omnidirectionnelle plutôt qu'une antenne hélicoïdale), on pourrait avoir un signal encore meilleur !
 De plus, les tests ont été réalisés avec un spreading factor faible (de 7, le plus faible), notamment pour pouvoir envoyer plusieurs salves de paquets d'affilées lors des tests (pour ne pas être handicapé par le duty cycle). Quelques tests avec un SF=12 (le maximum) ont été fait, et montraient que la portée était bien meilleure malgré les obstacles. Avec un SF=12, on pourrait probablement couvrir tout le site de l'Hermitage sans problème !
 
@@ -83,7 +83,7 @@ De plus, les tests ont été réalisés avec un spreading factor faible (de 7, l
 
 Peu de tests ont pu être réalisés, mais le protocole de mesure est fonctionnel et peut être réutilisé !
 
-Le noeud Arduino utilisait le programme OTAA_rangeTestBench : lorsqu'il y avait une interruption sur le pin 2 (entendre un appuie sur un interrupteur), 10 paquets étaient envoyés à la gateway, numéroté de 0 à 9, (avec un numéro supplémentaire d'identification de la salve de paquets).
+Le nœud Arduino utilisait le programme OTAA_rangeTestBench : lorsqu'il y avait une interruption sur le pin 2 (entendre un appuie sur un interrupteur), 10 paquets étaient envoyés à la gateway, numéroté de 0 à 9, (avec un numéro supplémentaire d'identification de la salve de paquets).
 
 Le but du test est donc d'envoyer une salve de paquet depuis une certaine position, et de voir ensuite le nombre de paquets correctement reçu parmi les 10. Il est également possible de s'intéresser au RSSI (indice de puissance d'un paquet) ou au SNR (ratio signal sur bruit), mais c'est plus difficile d'extraire de l'information.
 
