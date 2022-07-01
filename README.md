@@ -93,6 +93,8 @@ Le but du test est donc d'envoyer une salve de paquet depuis une certaine positi
 
 Les résultats d'une série de tests pour deux PCBs différentes sont visualisables sur ces [cartes](./cartesMesures_testsPorteeHer.pdf). Les résultats sont également accessibles dans les tableurs [mesures_testPorteeHer_2022-06-15.ods](./mesures_testPorteeHer_2022-06-17.ods) et [mesures_testPorteeHer_2022-06-17.ods](./mesures_testPorteeHer_2022-06-17.ods). Les données ont été extraites d'une base de données InfluxDB, intégrée à ChirpStack.
 
+![](./images/cartes.JPG)
+
 
 ## License
 
