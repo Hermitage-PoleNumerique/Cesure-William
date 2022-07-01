@@ -1,7 +1,7 @@
 # Carte/PCB *LoRaXHER* à assembler
 
-![](./images/IMG_7362.JPG)
-![](./images/IMG_7375.JPG)
+![](../images/IMG_7362.JPG)
+![](../images/IMG_7375.JPG)
 
 Il n’existe pas beaucoup de solutions disponibles au grand public, pour créer des nœuds LoRaWan avec un microcontrôleur :
 
@@ -51,7 +51,7 @@ La PCB réalisé permet donc d’accéder aux pins digitaux et analogiques d’u
 * Le pin digital 2 est relié a 2 jumpers mâles, qui permettent de détecter des interruptions **(2)**. Une LED peut également être connecté grâce à un jumper ; elle s’allumera lorsque le courant passe entre les 2 jumpers d’interruptions (elle est connectée de manière analogique, pas par l’intermédiaire du programme de l’Arduino) **(3)**
 * Une autre LED est reliée au pin 5, elle s’allumera si le pin est HIGH **(4)**
 
-![](./images/board.JPG)
+![](../images/board.JPG)
 
 ## Alimentation de la carte
 
