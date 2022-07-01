@@ -1,5 +1,8 @@
 # Carte/PCB *LoRaXHER* à assembler
 
+![](./images/IMG_7362.JPG)
+![](./images/IMG_7375.JPG)
+
 Il n’existe pas beaucoup de solutions disponibles au grand public, pour créer des nœuds LoRaWan avec un microcontrôleur :
 
 * Il existe des shields Lora pour Arduino (comme le [Dragino LoRa Arduino Shield](https://www.dragino.com/products/lora/item/102-lora-shield.html)). Ils sont intéressants pour une première expérience, mais ils sont assez chers en définitive (et ils se font de plus en plus rares).
@@ -44,13 +47,11 @@ Le modèle de la PCB se veut simple à réaliser soi-même ; c’est un circuit
 
 La PCB réalisé permet donc d’accéder aux pins digitaux et analogiques d’un Arduino pro-mini, pour brancher d’autres composants :
 
-* Les pins RX/TX sont accessibles et permettent à la fois de téléverser du code avec une carte FTDI, soit de connecter un autre composant (1)
-* Le pin digital 2 est relié a 2 jumpers mâles, qui permettent de détecter des interruptions (2). Une LED peut également être connecté grâce à un jumper ; elle s’allumera lorsque le courant passe entre les 2 jumpers d’interruptions (elle est connectée de manière analogique, pas par l’intermédiaire du programme de l’Arduino) (3)
-* Une autre LED est reliée au pin 5, elle s’allumera si le pin est HIGH. (4)
+* Les pins RX/TX sont accessibles et permettent à la fois de téléverser du code avec une carte FTDI, soit de connecter un autre composant **(1)**
+* Le pin digital 2 est relié a 2 jumpers mâles, qui permettent de détecter des interruptions **(2)**. Une LED peut également être connecté grâce à un jumper ; elle s’allumera lorsque le courant passe entre les 2 jumpers d’interruptions (elle est connectée de manière analogique, pas par l’intermédiaire du programme de l’Arduino) **(3)**
+* Une autre LED est reliée au pin 5, elle s’allumera si le pin est HIGH **(4)**
 
-**[photo board avec zones correspondants à explications au-dessus]
-
-[photo board + cnc]**
+![](./images/board.JPG)
 
 ## Alimentation de la carte
 
@@ -61,9 +62,7 @@ Pour alimenter un Arduino pro-mini il y a deux solutions :
 Il est assez commun d'acheter des batteries 9V pour de premiers projets Arduino. C'est en fait une mauvaise idée si on veut une bonne autonomie, la solution idéale étant plutôt d'utiliser des piles AA rechargeables, et de les combiner avec un élévateur de tension externe 3.3V (ou 5V), plus efficace que le régulateur de tension 3.3V intégré dans l'Arduino (voir [ceci](https://cybergibbons.com/arduino/arduino-misconceptions-6-a-9v-battery-is-a-good-power-source/) pour plus d'explications).
 Pendant un temps, pour éviter d'avoir à acheter un élévateur de tension 3.3V en plus d'un Arduino, il a également été envisager d'utiliser des piles Li-Ion (3.7V) avec le régulateur interne de l'Arduino (pour passer en 3.3V), ou d'utiliser directement sans régulateur des piles LiFePo4 en 3.2V. Mais les piles AA Ni-Mh sont bien plus intéressantes en matière de prix, de capacité et plus simples à trouver.
 
-La PCB développé permet donc de brancher un élévateur de tension, puis d’alimenter directement le pin VCC de l’Arduino (a). Cependant un jumper est présent pour choisir d’alimenter plutôt le pin RAW est de passer par le régulateur interne (b).
-
-**[photo board avec flèche sur le jumper]**
+La PCB développé permet donc de brancher un élévateur de tension, puis d’alimenter directement le pin VCC de l’Arduino **(a)**. Cependant un jumper est présent pour choisir d’alimenter plutôt le pin RAW est de passer par le régulateur interne **(b)**.
 
 ## Portée du signal LoRa
 
